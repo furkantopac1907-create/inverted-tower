@@ -1,0 +1,172 @@
+extends CharacterBody2D
+
+# ── constants ──────────────────────────────────────────────────────────────────
+const SPEED          := 200.0
+const JUMP_VELOCITY  := -520.0
+const GRAVITY        := 1200.0
+const DODGE_SPEED    := 480.0
+const DODGE_DURATION := 0.22
+const IFRAMES_DUR    := 0.50
+const ATTACK_DUR     := 0.45
+
+# animation folder names exactly as extracted from PixelLab
+const ANIM_IDLE   := "Breathing_Idle-32e00a9d"
+const ANIM_WALK   := "Walking-6c4f671c"
+const ANIM_ATTACK := "The_character_quickly_shifts_their_weight_and_lung-ee50d2d1"
+const SPRITE_BASE := "res://assets/sprites/characters/historian/animations/"
+
+# ── state ──────────────────────────────────────────────────────────────────────
+var _facing_right  := true
+var _is_dodging    := false
+var _is_attacking  := false
+var _is_hurt       := false
+var _is_dead       := false
+var _iframe_timer  := 0.0
+var _dodge_timer   := 0.0
+var _attack_timer  := 0.0
+
+# ── nodes ──────────────────────────────────────────────────────────────────────
+@onready var sprite        : AnimatedSprite2D = $AnimatedSprite2D
+@onready var attack_hitbox : Area2D           = $AttackHitbox
+@onready var hurt_box      : Area2D           = $HurtBox
+
+# ── init ───────────────────────────────────────────────────────────────────────
+func _ready() -> void:
+	add_to_group("player")
+	_build_sprite_frames()
+	attack_hitbox.body_entered.connect(_on_attack_body_entered)
+	hurt_box.area_entered.connect(_on_hurt_area_entered)
+
+func _build_sprite_frames() -> void:
+	var sf : SpriteFrames = SpriteFrames.new()
+	sf.remove_animation("default")
+	_add_anim(sf, "idle",   ANIM_IDLE,   4,  6.0, true)
+	_add_anim(sf, "walk",   ANIM_WALK,   6, 10.0, true)
+	_add_anim(sf, "attack", ANIM_ATTACK, 7, 14.0, false)
+	_add_anim(sf, "dodge",  ANIM_ATTACK, 7, 22.0, false)
+	sprite.sprite_frames = sf
+	sprite.play("idle")
+
+func _add_anim(sf: SpriteFrames, anim: String, folder: String, frames: int, fps: float, loop: bool) -> void:
+	sf.add_animation(anim)
+	sf.set_animation_speed(anim, fps)
+	sf.set_animation_loop(anim, loop)
+	var path : String = SPRITE_BASE + folder + "/south-east/"
+	for i in frames:
+		var tex : Texture2D = load(path + "frame_%03d.png" % i)
+		if tex:
+			sf.add_frame(anim, tex)
+
+# ── physics ────────────────────────────────────────────────────────────────────
+func _physics_process(delta: float) -> void:
+	if _is_dead:
+		return
+
+	_tick_timers(delta)
+
+	if not is_on_floor():
+		velocity.y += GRAVITY * delta
+
+	# dodge overrides everything else horizontally
+	if _is_dodging:
+		velocity.x = DODGE_SPEED * (1.0 if _facing_right else -1.0)
+		move_and_slide()
+		return
+
+	if not _is_attacking and not _is_hurt:
+		_handle_move(delta)
+		_handle_jump()
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, SPEED * 8.0 * delta)
+
+	_handle_attack()
+	_handle_dodge()
+	move_and_slide()
+	_update_anim()
+
+# ── input handlers ─────────────────────────────────────────────────────────────
+func _handle_move(delta: float) -> void:
+	var dir : float = Input.get_axis("move_left", "move_right")
+	if dir != 0.0:
+		velocity.x = move_toward(velocity.x, dir * SPEED, SPEED * 12.0 * delta)
+		_set_facing(dir > 0.0)
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, SPEED * 10.0 * delta)
+
+func _handle_jump() -> void:
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+func _handle_attack() -> void:
+	if Input.is_action_just_pressed("attack") and not _is_attacking and not _is_dodging:
+		_is_attacking = true
+		_attack_timer = ATTACK_DUR
+		attack_hitbox.monitoring = true
+		sprite.play("attack")
+
+func _handle_dodge() -> void:
+	if Input.is_action_just_pressed("dodge") and is_on_floor() and not _is_dodging and not _is_attacking:
+		_is_dodging   = true
+		_dodge_timer  = DODGE_DURATION
+		_iframe_timer = IFRAMES_DUR
+		_play("dodge")
+
+# ── timers ─────────────────────────────────────────────────────────────────────
+func _tick_timers(delta: float) -> void:
+	if _attack_timer > 0.0:
+		_attack_timer -= delta
+		if _attack_timer <= 0.0:
+			_is_attacking = false
+			attack_hitbox.monitoring = false
+
+	if _dodge_timer > 0.0:
+		_dodge_timer -= delta
+		if _dodge_timer <= 0.0:
+			_is_dodging = false
+
+	if _iframe_timer > 0.0:
+		_iframe_timer -= delta
+
+# ── animation ──────────────────────────────────────────────────────────────────
+func _update_anim() -> void:
+	if _is_attacking or _is_hurt or _is_dodging:
+		return
+	_play("walk" if abs(velocity.x) > 20.0 else "idle")
+
+func _play(anim: String) -> void:
+	if sprite.animation != anim:
+		sprite.play(anim)
+
+func _set_facing(right: bool) -> void:
+	if _facing_right == right:
+		return
+	_facing_right = right
+	sprite.flip_h = not right
+	# mirror attack hitbox horizontally
+	attack_hitbox.position.x = abs(attack_hitbox.position.x) * (1 if right else -1)
+
+# ── damage ─────────────────────────────────────────────────────────────────────
+func take_damage(amount: int) -> void:
+	if _iframe_timer > 0.0 or _is_dead:
+		return
+	_iframe_timer = IFRAMES_DUR
+	_is_hurt = true
+	GameState.damage_player(amount)
+	# flash red
+	sprite.modulate = Color(1, 0.3, 0.3)
+	await get_tree().create_timer(0.35).timeout
+	sprite.modulate = Color.WHITE
+	if not _is_dead:
+		_is_hurt = false
+
+func _die() -> void:
+	_is_dead = true
+	set_physics_process(false)
+
+# ── signal callbacks ───────────────────────────────────────────────────────────
+func _on_attack_body_entered(body: Node2D) -> void:
+	if body.has_method("take_damage"):
+		body.take_damage(1)
+
+func _on_hurt_area_entered(_area: Area2D) -> void:
+	take_damage(1)
