@@ -9,11 +9,11 @@ const DODGE_DURATION := 0.22
 const IFRAMES_DUR    := 0.50
 const ATTACK_DUR     := 0.45
 
-# animation folder names exactly as extracted from PixelLab
-const ANIM_IDLE   := "Breathing_Idle-32e00a9d"
-const ANIM_WALK   := "Walking-6c4f671c"
-const ANIM_ATTACK := "The_character_quickly_shifts_their_weight_and_lung-ee50d2d1"
-const SPRITE_BASE := "res://assets/sprites/characters/historian/animations/"
+# spritesheetler
+const SHEET_IDLE  := "res://assets/sprites/characters/player/idleman.png"       # 240×240, 3×3, 80×80
+const SHEET_SWORD := "res://assets/sprites/characters/player/malemainsword.png" # 324×324, 4×4, 81×81
+const SHEET_WALK  := "res://assets/sprites/characters/player/malewalksword.png" # 324×324, 4×4, 81×81
+const SHEET_JUMP  := "res://assets/sprites/characters/player/malejump.png"      # 340×340, 4×4, 85×85
 
 # ── state ──────────────────────────────────────────────────────────────────────
 var _facing_right  := true
@@ -38,24 +38,44 @@ func _ready() -> void:
 	hurt_box.area_entered.connect(_on_hurt_area_entered)
 
 func _build_sprite_frames() -> void:
-	var sf : SpriteFrames = SpriteFrames.new()
+	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
-	_add_anim(sf, "idle",   ANIM_IDLE,   4,  6.0, true)
-	_add_anim(sf, "walk",   ANIM_WALK,   6, 10.0, true)
-	_add_anim(sf, "attack", ANIM_ATTACK, 7, 14.0, false)
-	_add_anim(sf, "dodge",  ANIM_ATTACK, 7, 22.0, false)
+
+	var idle  := load(SHEET_IDLE)  as Texture2D
+	var sword := load(SHEET_SWORD) as Texture2D
+	var walk  := load(SHEET_WALK)  as Texture2D
+	var jump  := load(SHEET_JUMP)  as Texture2D
+
+	# idle   → idleman.png 9 kare, 80×80
+	_add_sheet(sf, "idle",   idle,  3, 3,  80, 80,  8.0, true,  0, 9)
+	# walk   → malewalksword 13 kare
+	_add_sheet(sf, "walk",   walk,  4, 4,  81, 81, 10.0, true,  0, 13)
+	# jump   → malejump 14 kare
+	_add_sheet(sf, "jump",   jump,  4, 4,  85, 85, 12.0, false, 0, 14)
+	# attack → malemainsword 13 kare (Z tuşu)
+	_add_sheet(sf, "attack", sword, 4, 4,  81, 81, 14.0, false, 0, 13)
+	# dodge  → hızlandırılmış walk 13 kare
+	_add_sheet(sf, "dodge",  walk,  4, 4,  81, 81, 22.0, false, 0, 13)
+
 	sprite.sprite_frames = sf
 	sprite.play("idle")
 
-func _add_anim(sf: SpriteFrames, anim: String, folder: String, frames: int, fps: float, loop: bool) -> void:
+func _add_sheet(sf: SpriteFrames, anim: String, sheet: Texture2D,
+				cols: int, _rows: int, fw: int, fh: int,
+				fps: float, loop: bool, start: int = 0, count: int = -1) -> void:
 	sf.add_animation(anim)
 	sf.set_animation_speed(anim, fps)
 	sf.set_animation_loop(anim, loop)
-	var path : String = SPRITE_BASE + folder + "/south-east/"
-	for i in frames:
-		var tex : Texture2D = load(path + "frame_%03d.png" % i)
-		if tex:
-			sf.add_frame(anim, tex)
+	if sheet == null:
+		return
+	var total_in_sheet := (sheet.get_width() / fw) * (sheet.get_height() / fh)
+	var end := (start + count) if count > 0 else total_in_sheet
+	for i in range(start, end):
+		var at := AtlasTexture.new()
+		at.atlas       = sheet
+		at.region      = Rect2((i % cols) * fw, (i / cols) * fh, fw, fh)
+		at.filter_clip = true
+		sf.add_frame(anim, at)
 
 # ── physics ────────────────────────────────────────────────────────────────────
 func _physics_process(delta: float) -> void:
@@ -67,7 +87,6 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
 
-	# dodge overrides everything else horizontally
 	if _is_dodging:
 		velocity.x = DODGE_SPEED * (1.0 if _facing_right else -1.0)
 		move_and_slide()
@@ -106,8 +125,8 @@ func _handle_attack() -> void:
 
 func _handle_dodge() -> void:
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and not _is_dodging and not _is_attacking:
-		_is_dodging   = true
-		_dodge_timer  = DODGE_DURATION
+		_is_dodging  = true
+		_dodge_timer = DODGE_DURATION
 		_iframe_timer = IFRAMES_DUR
 		_play("dodge")
 
@@ -131,7 +150,12 @@ func _tick_timers(delta: float) -> void:
 func _update_anim() -> void:
 	if _is_attacking or _is_hurt or _is_dodging:
 		return
-	_play("walk" if abs(velocity.x) > 20.0 else "idle")
+	if not is_on_floor():
+		_play("jump")
+	elif abs(velocity.x) > 20.0:
+		_play("walk")
+	else:
+		_play("idle")
 
 func _play(anim: String) -> void:
 	if sprite.animation != anim:
@@ -142,7 +166,6 @@ func _set_facing(right: bool) -> void:
 		return
 	_facing_right = right
 	sprite.flip_h = not right
-	# mirror attack hitbox horizontally
 	attack_hitbox.position.x = abs(attack_hitbox.position.x) * (1 if right else -1)
 
 # ── damage ─────────────────────────────────────────────────────────────────────
@@ -152,7 +175,6 @@ func take_damage(amount: int) -> void:
 	_iframe_timer = IFRAMES_DUR
 	_is_hurt = true
 	GameState.damage_player(amount)
-	# flash red
 	sprite.modulate = Color(1, 0.3, 0.3)
 	await get_tree().create_timer(0.35).timeout
 	sprite.modulate = Color.WHITE

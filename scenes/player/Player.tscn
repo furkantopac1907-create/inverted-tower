@@ -1,51 +1,54 @@
 [gd_scene format=3 uid="uid://c2p4mxvt8jgq1"]
 
-[ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://dnumrm4f3hrgk" path="res://scripts/player/Player.gd" id="1_player"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
 radius = 14.0
 height = 44.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
-size = Vector2(44.0, 32.0)
+size = Vector2(44, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
-size = Vector2(28.0, 64.0)
+size = Vector2(28, 64)
 
-[node name="Player" type="CharacterBody2D"]
-collision_layer = 1
+[node name="Player" type="CharacterBody2D" unique_id=315598281]
 collision_mask = 2
 script = ExtResource("1_player")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=50521278]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0.0, 4.0)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1780946070]
+position = Vector2(0, 4)
 shape = SubResource("CapsuleShape2D_body")
 
-[node name="AttackHitbox" type="Area2D" parent="."]
-position = Vector2(46.0, -8.0)
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=446635528]
+position = Vector2(46, -8)
 collision_layer = 4
 collision_mask = 8
 monitoring = false
 monitorable = false
 
-[node name="AttackShape" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="AttackShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1955335085]
 shape = SubResource("RectangleShape2D_attack")
 
-[node name="HurtBox" type="Area2D" parent="."]
+[node name="HurtBox" type="Area2D" parent="." unique_id=646017392]
 collision_layer = 0
 collision_mask = 16
-monitoring = true
 monitorable = false
 
-[node name="HurtShape" type="CollisionShape2D" parent="HurtBox"]
+[node name="HurtShape" type="CollisionShape2D" parent="HurtBox" unique_id=648726031]
 shape = SubResource("RectangleShape2D_hurt")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=736454112]
+zoom = Vector2(2.5, 2.5)
 position_smoothing_enabled = true
 position_smoothing_speed = 6.0
 drag_horizontal_enabled = true
 drag_vertical_enabled = true
-drag_horizontal_offset = 0.1
-drag_vertical_offset = 0.1
+drag_horizontal_offset = 0.48
+drag_vertical_offset = 0.3
+drag_left_margin = 0.4
+drag_top_margin = 0.0
+drag_right_margin = 0.12
+drag_bottom_margin = 0.0

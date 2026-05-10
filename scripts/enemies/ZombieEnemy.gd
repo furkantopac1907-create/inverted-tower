@@ -1,62 +1,82 @@
-﻿extends CharacterBody2D
+extends CharacterBody2D
 
-# â”€â”€ constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const SPEED          := 75.0
-const GRAVITY        := 1200.0
-const MAX_HP         := 3
-const ATTACK_RANGE   := 58.0
-const ATTACK_DAMAGE  := 1
-const ATTACK_DUR     := 0.55
+# ── constants ──────────────────────────────────────────────────────────────────
+const SPEED           := 75.0
+const GRAVITY         := 1200.0
+const MAX_HP          := 3
+const ATTACK_RANGE    := 58.0
+const ATTACK_DAMAGE   := 1
+const ATTACK_DUR      := 0.55
 const ATTACK_COOLDOWN := 1.8
-const HURT_DUR       := 0.30
+const HURT_DUR        := 0.30
 
-const SPRITE_BASE := "res://assets/sprites/characters/zombie_enemy/animations/"
-const ANIM_WALK   := "Walking-f6b45c0f"
-const ANIM_ATTACK := "The_character_leans_slightly_into_a_sudden_upward-e3745352"
+# spritesheetler
+# enemywalk  → 320×240, 4 sütun × 3 satır, kare: 80×80 (12 kare)
+# enemyatack → 192×192, 3 sütun × 3 satır, kare: 64×64  (9 kare)
+const SHEET_IDLE   := "res://assets/sprites/characters/cultist/enemyidle.png"
+const SHEET_WALK   := "res://assets/sprites/characters/cultist/enemywalk.png"
+const SHEET_ATTACK := "res://assets/sprites/characters/cultist/enemyatack.png"
 
-# â”€â”€ state machine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── state machine ──────────────────────────────────────────────────────────────
 enum State { IDLE, CHASE, ATTACK, HURT, DEAD }
 var state : int = State.IDLE
 
-# â”€â”€ runtime vars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-var hp              : int               = MAX_HP
-var _player         : CharacterBody2D   = null
-var _facing_right   : bool              = true
-var _attack_timer   : float             = 0.0
-var _attack_cooldown: float             = 0.0
-var _hurt_timer     : float             = 0.0
-var _hit_landed     : bool              = false
+# ── runtime vars ───────────────────────────────────────────────────────────────
+var hp               : int             = MAX_HP
+var _player          : CharacterBody2D = null
+var _facing_right    : bool            = true
+var _attack_timer    : float           = 0.0
+var _attack_cooldown : float           = 0.0
+var _hurt_timer      : float           = 0.0
+var _hit_landed      : bool            = false
 
-# â”€â”€ nodes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── nodes ──────────────────────────────────────────────────────────────────────
 @onready var sprite         : AnimatedSprite2D = $AnimatedSprite2D
 @onready var detection_zone : Area2D           = $DetectionZone
 
-# â”€â”€ init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── init ───────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	add_to_group("enemy")
 	_build_sprite_frames()
 	detection_zone.body_entered.connect(_on_body_entered_detection)
 	detection_zone.body_exited.connect(_on_body_exited_detection)
-	sprite.play("walk")
+	sprite.play("idle")
 
 func _build_sprite_frames() -> void:
-	var sf : SpriteFrames = SpriteFrames.new()
+	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
-	_add_anim(sf, "walk",   ANIM_WALK,   6,  9.0, true)
-	_add_anim(sf, "attack", ANIM_ATTACK, 5, 10.0, false)
+
+	var idle   := load(SHEET_IDLE)   as Texture2D
+	var walk   := load(SHEET_WALK)   as Texture2D
+	var attack := load(SHEET_ATTACK) as Texture2D
+
+	# idle → enemyidle.png  192×192, 3×3 grid, 64×64 kare
+	_add_sheet(sf, "idle",   idle,   3, 3,  64, 64,  7.0, true,  0, 9)
+	# walk → tüm 12 kare
+	_add_sheet(sf, "walk",   walk,   4, 3,  80, 80,  9.0, true,  0, 12)
+	# attack → tüm 9 kare
+	_add_sheet(sf, "attack", attack, 3, 3,  64, 64, 10.0, false, 0, 9)
+
 	sprite.sprite_frames = sf
 
-func _add_anim(sf: SpriteFrames, anim: String, folder: String, frames: int, fps: float, loop: bool) -> void:
+func _add_sheet(sf: SpriteFrames, anim: String, sheet: Texture2D,
+				cols: int, _rows: int, fw: int, fh: int,
+				fps: float, loop: bool, start: int = 0, count: int = -1) -> void:
 	sf.add_animation(anim)
 	sf.set_animation_speed(anim, fps)
 	sf.set_animation_loop(anim, loop)
-	var path : String = SPRITE_BASE + folder + "/south-east/"
-	for i in frames:
-		var tex : Texture2D = load(path + "frame_%03d.png" % i)
-		if tex:
-			sf.add_frame(anim, tex)
+	if sheet == null:
+		return
+	var total := (sheet.get_width() / fw) * (sheet.get_height() / fh)
+	var end   := (start + count) if count > 0 else total
+	for i in range(start, end):
+		var at := AtlasTexture.new()
+		at.atlas       = sheet
+		at.region      = Rect2((i % cols) * fw, (i / cols) * fh, fw, fh)
+		at.filter_clip = true
+		sf.add_frame(anim, at)
 
-# â”€â”€ physics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── physics ────────────────────────────────────────────────────────────────────
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
@@ -70,6 +90,8 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.IDLE:
 			velocity.x = move_toward(velocity.x, 0.0, SPEED * 8.0 * delta)
+			if sprite.animation != "idle":
+				sprite.play("idle")
 		State.CHASE:
 			_tick_chase(delta)
 		State.ATTACK:
@@ -79,7 +101,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-# â”€â”€ state ticks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── state ticks ────────────────────────────────────────────────────────────────
 func _tick_chase(delta: float) -> void:
 	if not is_instance_valid(_player):
 		state = State.IDLE
@@ -98,7 +120,7 @@ func _tick_chase(delta: float) -> void:
 		sprite.play("walk")
 
 func _begin_attack() -> void:
-	state = State.ATTACK
+	state         = State.ATTACK
 	_attack_timer = ATTACK_DUR
 	_hit_landed   = false
 	velocity.x    = 0.0
@@ -107,7 +129,6 @@ func _begin_attack() -> void:
 func _tick_attack(delta: float) -> void:
 	_attack_timer -= delta
 
-	# land the hit at 40% through the swing (just past the windup)
 	if not _hit_landed and _attack_timer <= ATTACK_DUR * 0.6:
 		_hit_landed      = true
 		_attack_cooldown = ATTACK_COOLDOWN
@@ -125,7 +146,7 @@ func _tick_hurt(delta: float) -> void:
 	if _hurt_timer <= 0.0:
 		state = State.CHASE if is_instance_valid(_player) else State.IDLE
 
-# â”€â”€ damage / death â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── damage / death ─────────────────────────────────────────────────────────────
 func take_damage(amount: int) -> void:
 	if state == State.DEAD:
 		return
@@ -148,12 +169,12 @@ func _die() -> void:
 	await get_tree().create_timer(0.9).timeout
 	queue_free()
 
-# â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── helpers ────────────────────────────────────────────────────────────────────
 func _set_facing(right: bool) -> void:
 	if _facing_right == right:
 		return
-	_facing_right  = right
-	sprite.flip_h  = not right
+	_facing_right = right
+	sprite.flip_h = not right
 
 func _on_body_entered_detection(body: Node2D) -> void:
 	if body.is_in_group("player") and state != State.DEAD:
