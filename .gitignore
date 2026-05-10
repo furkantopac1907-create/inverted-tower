@@ -14,3 +14,6 @@ Thumbs.db
 
 # Claude local settings
 .claude/settings.local.json
+
+# Local MCP config (machine-specific paths)
+.mcp.json

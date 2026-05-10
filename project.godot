@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="invertedtower"
-run/main_scene="res://scenes/zones/TestRoom.tscn"
+run/main_scene="res://scenes/zones/Zone1_IsciMezari.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 EventBus="*res://scripts/systems/EventBus.gd"
 GameState="*res://scripts/systems/GameState.gd"
+McpInteractionServer="*res://scripts/mcp_interaction_server.gd"
 
 [input]
 

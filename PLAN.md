@@ -1,400 +1,371 @@
 # Inverted Tower — Game Plan
-**Engine:** Godot 4.6.2 | **Genre:** 2D Side-scrolling | **Setting:** Medieval / Occult
+**Engine:** Godot 4 | **Genre:** Dark Platformer / Metroidvania | **Setting:** Medieval / Occult / Cosmic Horror
 
 ---
 
-## Story
+## Oyun Özeti
 
-A historian tracks down the ruins of the legendary Tower of Babylon buried beneath a medieval landscape. As he descends through collapsed chambers he uncovers a horrifying truth: a fanatical cult deliberately inverted the tower, driving it deep into the earth to commune with something below. The deeper he goes, the more the architecture defies logic — ceilings become floors, gravity warps, and the cult's guardians still patrol its halls. He must piece together the cult's secrets through scattered lore and survive long enough to escape.
+Ortaçağ atmosferinde geçen karanlık bir platformer / metroidvania deneyimi.
+
+Oyuncu, Babil Kulesi'ne ait olduğu düşünülen gizli bir kazı alanında çalışan isimsiz bir arkeologdur.
+Kazı sırasında mühürlü bir kapı açılır ve oyuncu, yeraltına doğru inşa edilmiş "gerçek Babil" ile karşılaşır.
+
+**Kule göğe değil aşağıya uzanmaktadır.**
+Çünkü eski bir kült, Tanrı'nın gözetiminden kaçmak için kuleyi yeraltına inşa etmiştir.
+Ancak ritüel başarısız olmuş, ve kült üyeleri "Sağırlar" adı verilen varlıklara dönüşmüştür.
 
 ---
 
-## World Structure
+## Ana Temalar
 
-The game is a linear side-scroller with optional secret rooms in each zone. Zones descend — the further down, the more distorted the architecture and the more dangerous the enemies.
+- Yasak bilgi
+- Dil ve anlamın çöküşü
+- Tanrı'nın gözetimi
+- Sessizlik korkusu
+- İnsan zihninin sınırları
+- Kolektif bilinç
+- Kimliğin kaybı
+- Kozmik korku
+
+---
+
+## Atmosfer
+
+Oyuncu giderek daha eski, daha bozulmuş ve daha gerçek dışı katmanlara iner.
+Dünya ölmek üzere değil; çok uzun zaman önce ölmüştür.
+
+**Oyunun hissi:**
+Melankolik · Yalnız · Boğucu · Gizemli · Sessiz · Dini / Ritüelistik
+
+---
+
+## Hikâye Anlatım Tarzı
+
+FromSoftware tarzı çevresel hikâye anlatımı hedeflenir.
+
+Bilgiler şunlar üzerinden dolaylı aktarılır:
+- NPC diyalogları
+- Tablet yazıları
+- Boss monologları
+- Bölge tasarımı
+- Item açıklamaları
+- Mimari detaylar
+
+**Oyuncuya hiçbir şey tamamen açıklanmaz.**
+
+---
+
+## Oyun Döngüsü
 
 ```
-Zone 1 — Surface Ruins         (tutorial, crumbling medieval stone)
-Zone 2 — Upper Vaults          (first underground, storage rooms, early cult markings)
-Zone 3 — The Fracture          (architecture begins inverting, gravity shifts)
-Zone 4 — The Inverted Nave     (fully upside-down halls, mid-game twist)
-Zone 5 — Cult Sanctum          (deep ritual chambers, high difficulty)
-Zone 6 — The Core              (heart of the inversion, final boss arena)
-```
-
-Each zone has:
-- 2–3 main rooms + 1 hidden secret room
-- 1 lore scroll (text collectible)
-- 1 mini-challenge or puzzle before the next zone gate
-
----
-
-## Player Systems
-
-| System | Description |
-|--------|-------------|
-| Movement | Walk, run, jump, crouch, wall-slide |
-| Combat | Melee (torch / dagger), throwable knives, dodge roll |
-| Health | 5 HP, restored by found bandages and herbs |
-| Sanity | Drains slowly in Zones 4–6; full depletion causes screen distortion and spawns shades |
-| Lore Scrolls | Collectible texts that expand the story; tracked in a journal menu |
-| Secrets | Hidden wall passages reveal extra lore, HP upgrades, or shortcuts |
-
----
-
-## Enemies
-
-| Enemy | Zone | Type | Notes |
-|-------|------|------|-------|
-| Cultist Acolyte | 1–3 | Melee humanoid | Basic patrol + aggro |
-| Cultist Archer | 2–4 | Ranged humanoid | Fires from distance, retreats |
-| Possessed Relic | 2–3 | Construct | Slow, high HP, area stomp |
-| Shade | 4–6 | Ghost | Passes through terrain, sanity-linked |
-| Cult Warden | 3, 5 | Heavy melee | Mini-boss, drops key item |
-| The Keeper | Zone 3 boss | Construct | Phase 1: stomp; Phase 2: gravity flip |
-| The High Inquisitor | Zone 5 boss | Humanoid | Teleport + projectile barrage |
-| The Inverted One | Zone 6 final | Eldritch | Multi-phase, environmental hazards |
-
----
-
-## Scenes (Godot)
-
-```
-res://
-├── scenes/
-│   ├── player/
-│   │   ├── Player.tscn
-│   │   └── PlayerCamera.tscn
-│   ├── enemies/
-│   │   ├── CultistAcolyte.tscn
-│   │   ├── CultistArcher.tscn
-│   │   ├── PossessedRelic.tscn
-│   │   ├── Shade.tscn
-│   │   ├── CultWarden.tscn
-│   │   ├── TheKeeper.tscn
-│   │   ├── TheHighInquisitor.tscn
-│   │   └── TheInvertedOne.tscn
-│   ├── zones/
-│   │   ├── Zone1_SurfaceRuins.tscn
-│   │   ├── Zone2_UpperVaults.tscn
-│   │   ├── Zone3_TheFracture.tscn
-│   │   ├── Zone4_InvertedNave.tscn
-│   │   ├── Zone5_CultSanctum.tscn
-│   │   └── Zone6_TheCore.tscn
-│   ├── ui/
-│   │   ├── HUD.tscn
-│   │   ├── PauseMenu.tscn
-│   │   ├── LoreJournal.tscn
-│   │   └── MainMenu.tscn
-│   └── objects/
-│       ├── Torch.tscn
-│       ├── LoreScroll.tscn
-│       ├── SecretPassage.tscn
-│       ├── ChestPickup.tscn
-│       └── ZoneGate.tscn
-├── assets/
-│   ├── sprites/characters/
-│   ├── sprites/tilesets/
-│   ├── sprites/objects/
-│   └── sprites/ui/
-├── scripts/
-│   ├── player/
-│   ├── enemies/
-│   ├── systems/
-│   └── ui/
-└── autoloads/
-    ├── GameState.gd      (health, sanity, scrolls collected)
-    ├── SaveSystem.gd
-    └── EventBus.gd
+Yeni bölge keşfet
+  → Antik semboller bul
+  → Yeni dili çöz
+  → Gizli yollar aç
+  → Boss yen
+  → Daha derine in
+  → Gerçekliği sorgula
 ```
 
 ---
 
-## Development Phases
+## Dil Mekaniği
 
-### Phase 0 — Foundation
-**Goal:** Playable player in a test room with no real art.
+Oyuncu ilerledikçe antik dili öğrenmeye başlar.
 
-- [x] Create Godot project, set up folder structure
-- [x] `Player.tscn`: CharacterBody2D, movement (walk/run/jump), attack, dodge roll with i-frames
-- [x] `GameState.gd` autoload: health, sanity, scroll list, checkpoint
-- [x] `EventBus.gd` autoload: signal bus for damage, death, lore, sanity, zone
-- [x] Input map registered: move_left/right (A·D·←·→), jump (Space·W), attack (J·Z), dodge (K·X), interact (E·F)
-- [ ] Camera with screen-edge deadzone
-- [ ] Placeholder TileMap with one gray tile for collision testing
-- [ ] Death + respawn at last checkpoint
+**Başlangıçta:**
+- Yazılar anlamsız görünür
+- NPC'ler bozuk konuşur
+
+**Dil öğrenildikçe:**
+- Yeni diyaloglar açılır
+- Gizli kapılar aktif olur
+- Dünya değişmeye başlar
+- Yeni platformlar görünür
+
+> Ancak bilgi aynı zamanda lanettir. Oyuncu da "duymaya" başlar.
 
 ---
 
-### Phase 1 — Art Foundation (PixelLab)
-**Goal:** Generate all core sprites before building real levels.
+## İlham Kaynakları
 
-#### Protagonist — IMPORTED
-Character already created in PixelLab and downloaded.
+Dark Souls · Bloodborne · Hollow Knight · Blasphemous · INSIDE · Rain World
+Lovecraft kozmik korkusu · Babil Kulesi miti
+
+---
+
+## Görsel Stil
+
+**Önerilen stiller:**
+- Karanlık pixel art
+- Low poly gotik tasarım
+- El çizimi atmosferik arka planlar
+
+**Önemli olan:**
+- Siluet okunabilirliği
+- Işık kullanımı
+- Derinlik hissi
+- Büyük boşluklar
+
+---
+
+## Animasyon Yaklaşımı
+
+Animasyonlar abartılı değil, ağır ve "eski" hissettirmeli.
+
+- Boss hareketlerinde gecikme
+- Ani sessizlikler
+- İnsan dışı hareketler
+- Yavaş dönüşler
+- Ritüel hissi
+
+---
+
+## Ses Tasarımı
+
+Ses oyunun temel yapı taşlarından biri olacak.
+
+- Derin yankılar
+- Bozuk dualar
+- Ters çevrilmiş fısıltılar
+- Metal sürtünmeleri
+- Uzaktan gelen çan sesleri
+- Uzun sessizlikler
+
+> Bazı bölgelerde müzik tamamen kaldırılabilir.
+
+---
+
+## Boss Tasarımı
+
+Bosslar klasik canavar değil, insanlığını kaybetmiş kutsal figürler gibi hissettirmeli.
+
+| Boss | Konsept |
+|------|---------|
+| Sessiz Kâhin | — |
+| Kulaksız Kral | — |
+| Bin Dilli Anne | — |
+| Gözetleyen | — |
+
+---
+
+## Dünya Yapısı (Bölgeler)
+
+```
+1. İşçilerin Mezarı      → Modern kazı ekibinin terk edilmiş kampı (tutorial)
+2. Yankı Şehri           → Seslerin gecikmeli duyulduğu antik şehir
+3. Kör Rahipler Manastırı → Tanrı'nın bakışından kaçmak için gözlerini çıkaran rahipler
+4. Ters Saray            → Yerçekimi ve mimarinin bozulduğu bölge
+5. Son Çan Kuyusu        → Mutlak sessizliğin bulunduğu son katman
+```
+
+Her bölgede:
+- 2–3 ana oda + 1 gizli oda
+- 1 lore collectible (tablet / yazıt)
+- 1 mini-puzzle veya meydan okuma
+
+---
+
+## İlk Demo Hedefi (Vertical Slice)
+
+**10–15 dakikalık oynanabilir demo.**
+
+- [ ] Açılış sinematiği
+- [ ] İlk bölge (İşçilerin Mezarı) — tam oynanabilir
+- [ ] Basit combat sistemi
+- [ ] 1 miniboss
+- [ ] 2 NPC
+- [ ] Dil çözme mekaniğinin ilk versiyonu
+
+---
+
+## Yol Haritası
+
+### Aşama 0 — Temel Altyapı
+**Hedef:** Test odasında oynanabilir karakter.
+
+- [x] Godot projesi oluştur, klasör yapısını kur
+- [x] `Player.tscn`: CharacterBody2D, hareket (yürü/koş/zıpla), saldırı, dodge
+- [x] `GameState.gd` autoload: sağlık, akıl sağlığı, scroll listesi, checkpoint
+- [x] `EventBus.gd` autoload: hasar, ölüm, lore, akıl sağlığı sinyalleri
+- [x] Input map: move_left/right (A·D·←·→), jump (Space·W), attack (J·Z), dodge (K·X), interact (E·F)
+- [ ] Screen-edge deadzone kamerası
+- [ ] Placeholder TileMap (gri tile, collision testi için)
+- [ ] Ölüm + son checkpoint'te yeniden doğma
+
+---
+
+### Aşama 1 — Sanat Temeli (PixelLab)
+**Hedef:** Gerçek seviye inşasından önce tüm temel sprite'ları oluştur.
+
+#### Protagonist — MEVCUT
 - **ID:** `af0973e3-aaeb-45e0-b968-3467cd34e8c5`
-- **Size:** 92×92px, 8 directions, view: low top-down
-- **Animations included:** Breathing_Idle (4 frames), Walking (6 frames), Attack-lunge (7 frames)
-- **Path:** `assets/sprites/characters/historian/`
-- **Sidescroller frames to use:** `south-east/` = facing right, `south-west/` = facing left
+- **Boyut:** 92×92px, 8 yön, view: low top-down
+- **Animasyonlar:** Breathing_Idle (4f), Walking (6f), Attack-lunge (7f)
+- **Yol:** `assets/sprites/characters/historian/`
+- Sidescroller için: `south-east/` = sağa bak, `south-west/` = sola bak
 
-Missing animations to add via `animate_character`:
-```
-Tool: animate_character
-  character_id: af0973e3-aaeb-45e0-b968-3467cd34e8c5
-  template_animation_id: hurt / death / run / jump
-```
+Eksik animasyonlar (`animate_character` ile eklenecek): `hurt`, `death`, `run`, `jump`
 
-#### Zombie Enemy — IMPORTED
-Character already created in PixelLab and downloaded.
+#### Zombie Düşmanı — MEVCUT
 - **ID:** `6d88c2ee-1e5d-4236-8502-e4779c1d34b3`
-- **Size:** 120×120px, 8 directions, view: side
-- **Animations included:** Walking (6 frames), Attack-upward (5 frames)
-- **Path:** `assets/sprites/characters/zombie_enemy/`
-- **Sidescroller frames to use:** `south-east/` = facing right, `south-west/` = facing left
+- **Boyut:** 120×120px, 8 yön, view: side
+- **Animasyonlar:** Walking (6f), Attack-upward (5f)
+- **Yol:** `assets/sprites/characters/zombie_enemy/`
 
-Missing animations to add via `animate_character`:
-```
-Tool: animate_character
-  character_id: 6d88c2ee-1e5d-4236-8502-e4779c1d34b3
-  template_animation_id: hurt / death / idle
-```
+Eksik animasyonlar: `hurt`, `death`, `idle`
 
-#### Remaining Enemies (still to generate)
-| Enemy | create_character parameters |
-|-------|-----------------------------|
-| Cultist Acolyte | `"hooded cultist, ragged medieval robe, dagger"`, humanoid, realistic_male, size 64 |
-| Cultist Archer | `"hooded cultist, crossbow, dark medieval cloak"`, humanoid, realistic_male, size 64 |
-| Possessed Relic | `"ancient stone golem, cracked surface, glowing eyes"`, humanoid, realistic_male, size 80 |
-| Cult Warden | `"armored medieval knight, inverted cross on chest, large halberd"`, humanoid, realistic_male, size 80 |
+#### Üretilecek Düşmanlar
+| Düşman | Açıklama |
+|--------|----------|
+| Kültist Tarikat Üyesi | `"hooded cultist, ragged medieval robe, dagger"`, 64px |
+| Kültist Okçu | `"hooded cultist, crossbow, dark medieval cloak"`, 64px |
+| Ele Geçirilmiş Eser | `"ancient stone golem, cracked surface, glowing eyes"`, 80px |
+| Tarikat Gardiyanı | `"armored medieval knight, inverted cross, large halberd"`, 80px |
 
+#### Tilesetler — Stil zinciri ile
 ```
-Tool: animate_character → idle, walk, attack, hurt, death for each enemy
-Tool: vary_object → generate elite (glowing) variant of Acolyte and Archer for Zones 5–6
+Bölge 1 — İşçilerin Mezarı     (crumbling medieval stone, weathered) seed:1001
+Bölge 2 — Yankı Şehri          (ancient limestone, cobwebs, carved symbols) seed:1002
+Bölge 3 — Kör Rahipler         (fractured sandstone, glowing amber cracks) seed:1003
+Bölge 4 — Ters Saray           (ornate upside-down pillars, dark inverted moss) seed:1004
+Bölge 5 — Son Çan Kuyusu       (polished black marble, ritual engravings) seed:1005
 ```
 
-#### Bosses — use create_object (more frame control)
-```
-Tool: create_object
-  description: "The Keeper — massive stone guardian, cracked with occult runes, four-armed"
-  directions: 1     ← boss faces one direction
-  size: 96
-  n_frames: 4       ← idle cycle
-  view: side
+Her yeni tileset öncekinin `base_tile_id` değerini alır (stil tutarlılığı için).
 
-Tool: animate_object
-  object_id: <keeper_id>
-  animation_description: "heavy stomp, screen shake, raises fist then slams ground"
-  frame_count: 8
-
-Repeat for: The High Inquisitor, The Inverted One
-```
-
-#### Tilesets — one per zone, chained for style consistency
-```
-Zone 1 — Surface Ruins
-  Tool: create_sidescroller_tileset
-    lower_description: "crumbling medieval stone brick, weathered mortar"
-    transition_description: "patches of green moss and wild grass on top"
-    transition_size: 0.3
-    tile_size: 16x16
-    outline: thin
-    shading: hard
-    detail: medium
-    seed: 1001
-
-Zone 2 — Upper Vaults
-  Tool: create_sidescroller_tileset
-    lower_description: "ancient dark limestone blocks, underground vault"
-    transition_description: "dust, cobwebs, faint carved symbols"
-    transition_size: 0.2
-    base_tile_id: <zone1_id>     ← chains style from Zone 1
-    seed: 1002
-
-Zone 3 — The Fracture
-  Tool: create_sidescroller_tileset
-    lower_description: "fractured sandstone, chunks floating slightly out of place"
-    transition_description: "glowing amber cracks, dust motes"
-    transition_size: 0.35
-    base_tile_id: <zone2_id>
-    seed: 1003
-
-Zone 4 — The Inverted Nave
-  Tool: create_sidescroller_tileset
-    lower_description: "ornate stone pillars and arches, clearly built upside-down"
-    transition_description: "dark inverted moss, dripping shadows"
-    transition_size: 0.25
-    base_tile_id: <zone3_id>
-    seed: 1004
-
-Zone 5 — Cult Sanctum
-  Tool: create_sidescroller_tileset
-    lower_description: "polished black marble, ritual engravings, candle wax drips"
-    transition_description: "dried blood and faint red runes"
-    transition_size: 0.2
-    base_tile_id: <zone4_id>
-    seed: 1005
-
-Zone 6 — The Core
-  Tool: create_sidescroller_tileset
-    lower_description: "void-touched obsidian, surface rippling like liquid"
-    transition_description: "tears in reality, faint purple light leaking through"
-    transition_size: 0.4
-    base_tile_id: <zone5_id>
-    seed: 1006
-```
-
-#### Props / Map Objects
-```
-Tool: create_map_object (for each prop below)
-  view: side
-  outline: single color outline
-  shading: medium shading
-  detail: medium detail
-```
-
-| Prop | description parameter |
-|------|-----------------------|
-| Wall torch | `"medieval iron wall bracket holding a burning torch, side view"` |
-| Altar | `"stone cult altar with candles and skull, side view"` |
-| Bookshelf | `"old wooden bookshelf with scrolls and tomes, side view"` |
-| Lore scroll | `"rolled parchment scroll tied with twine, glowing faintly"` |
-| Lever | `"iron wall lever with worn wood handle, side view"` |
-| Chest | `"old wooden chest with iron lock, side view"` |
-| Broken column | `"fallen medieval stone column, cracked, mossy"` |
-| Cult symbol | `"carved inverted triangle occult symbol on stone wall"` |
-| Spike trap | `"stone floor panel with retractable iron spikes"` |
-
-```
-Tool: animate_object
-  → Torch: flickering flame loop (frame_count: 6)
-  → Spike trap: retract/extend cycle (frame_count: 4)
-  → Chest: opening animation (frame_count: 4)
-```
+#### Prop'lar
+Duvar meşalesi · Sunak · Kitaplık · Lore parşömeni · Kaldıraç · Sandık · Kırık sütun · Kült sembolü · Sivri tuzak
 
 ---
 
-### Phase 2 — Zones 1 & 2
-**Goal:** First two zones fully playable with real art.
+### Aşama 2 — Bölge 1 & 2 (Demo)
+**Hedef:** İlk iki bölge gerçek sanatla tam oynanabilir.
 
-- [ ] Import all generated tilesets into Godot TileSet resources
-- [ ] Build `Zone1_SurfaceRuins.tscn` level layout
-- [ ] Build `Zone2_UpperVaults.tscn` level layout
-- [ ] Place props as StaticBody2D / Area2D nodes using generated sprites
-- [ ] Implement `CultistAcolyte.tscn`: patrol state, aggro radius, attack, death
-- [ ] Implement `CultistArcher.tscn`: stand, aim, shoot projectile, retreat
-- [ ] Implement `LoreScroll.tscn`: Area2D pickup → logs to GameState, opens text popup
-- [ ] Implement `SecretPassage.tscn`: thin wall tile that breaks on interact
-- [ ] Implement first checkpoint system
-- [ ] HUD: health bar, sanity bar stub (hidden in Zone 1–2)
-
----
-
-### Phase 3 — Remaining Art (PixelLab)
-**Goal:** All sprites for Zones 3–6 generated and imported.
-
-- [ ] Generate remaining tilesets (Zones 3–6) using chained base_tile_id
-- [ ] Generate `PossessedRelic`, `Shade`, `CultWarden` characters + animations
-- [ ] Generate boss objects: The Keeper, The High Inquisitor, The Inverted One
-- [ ] Generate remaining props (altar variants, void crystals, inverted pillars)
-- [ ] Use `vary_object` on Acolyte/Archer for elite Zone 5–6 variants
+- [ ] Tilesetleri Godot TileSet kaynaklarına aktar
+- [ ] `Zone1_IsciMezari.tscn` seviye düzeni
+- [ ] `Zone2_YankiSehri.tscn` seviye düzeni
+- [ ] Prop'ları StaticBody2D / Area2D node olarak yerleştir
+- [ ] Kültist Tarikat Üyesi AI: devriye, aggro, saldırı, ölüm
+- [ ] Kültist Okçu AI: dur, nişan al, mermi at, geri çekil
+- [ ] `LoreScroll.tscn`: Area2D pickup → GameState'e kaydet, metin popup aç
+- [ ] `SecretPassage.tscn`: interact ile kırılan ince duvar tile'ı
+- [ ] Checkpoint sistemi
+- [ ] HUD: sağlık barı, akıl sağlığı barı (Bölge 1–2'de gizli)
+- [ ] Dil mekaniği — başlangıç versiyonu (anlamsız semboller → ilk çözüm)
+- [ ] 2 NPC diyalogu
+- [ ] 1 Miniboss (Sessiz Kâhin prototipi)
 
 ---
 
-### Phase 4 — Zones 3–6 & Core Systems
-**Goal:** Full game playable start to finish.
-
-- [ ] Build `Zone3_TheFracture.tscn` — introduce gravity-flip platform sections
-- [ ] Build `Zone4_InvertedNave.tscn` — upside-down layout, Shade enemies
-- [ ] Build `Zone5_CultSanctum.tscn` — dense enemy placement, warden mini-boss
-- [ ] Build `Zone6_TheCore.tscn` — final boss arena
-- [ ] Implement sanity system: slow drain in Zones 4–6, screen vignette + distortion shader
-- [ ] Implement `TheKeeper.tscn` boss fight: phase 1 stomp, phase 2 gravity flip
-- [ ] Implement `TheHighInquisitor.tscn` boss fight: teleport + projectile patterns
-- [ ] Implement `TheInvertedOne.tscn` final boss: multi-phase, zone hazards
-- [ ] Implement full lore journal UI (`LoreJournal.tscn`)
-- [ ] Implement `SaveSystem.gd`: save zone progress, health, scrolls to file
+### Aşama 3 — Kalan Sanat (PixelLab)
+- [ ] Bölge 3–5 tilesetleri (zincirlenmiş base_tile_id ile)
+- [ ] PossessedRelic, Shade, CultWarden karakter + animasyonlar
+- [ ] Boss objeleri: Kulaksız Kral, Bin Dilli Anne, Gözetleyen
+- [ ] Kalan prop'lar
+- [ ] `vary_object` ile Acolyte/Archer elite varyantları
 
 ---
 
-### Phase 5 — Polish & Ship
-**Goal:** Shippable, polished vertical slice.
-
-- [ ] Main menu (`MainMenu.tscn`) with new game / continue / quit
-- [ ] Pause menu with quit-to-menu
-- [ ] Particle effects: torch smoke, dust on landing, blood on hit, void wisps in Zone 6
-- [ ] Screen shake on boss attacks and heavy hits
-- [ ] Death screen with "You perished" message and retry
-- [ ] Full playthrough balance pass (enemy HP, damage, spawn density)
-- [ ] Audio: placeholder SFX slots wired to AudioStreamPlayer nodes (footstep, slash, hurt, ambient)
-- [ ] Accessibility: rebindable keys in settings
-- [ ] Final bug pass
+### Aşama 4 — Bölge 3–5 & Çekirdek Sistemler
+- [ ] Bölge 3 — Kör Rahipler Manastırı (yerçekimi bükülmesi platformları)
+- [ ] Bölge 4 — Ters Saray (ters düzen, Shade düşmanları)
+- [ ] Bölge 5 — Son Çan Kuyusu (yoğun düşman yerleşimi, mutlak sessizlik)
+- [ ] Akıl sağlığı sistemi: Bölge 3–5'te yavaş azalma, ekran distorsiyon shader
+- [ ] Boss dövüşleri: Kulaksız Kral, Bin Dilli Anne
+- [ ] Final boss: Gözetleyen (çok aşamalı)
+- [ ] Tam lore journal UI
+- [ ] `SaveSystem.gd`: bölge ilerlemesi, sağlık, scroll'lar dosyaya kaydet
 
 ---
 
-## PixelLab Tool Quick Reference
-
-| What you need | Tool to use |
-|---------------|-------------|
-| Generate a new character sprite | `create_character` |
-| Add walk/run/attack animation to a character | `animate_character` |
-| Check if a character job is done | `get_character` |
-| Generate a zone's platform tiles | `create_sidescroller_tileset` |
-| Check tileset generation status | `get_sidescroller_tileset` |
-| Generate a prop (torch, chest, altar) | `create_map_object` |
-| Generate a boss or complex enemy sprite | `create_object` |
-| Add animation frames to a boss/object | `animate_object` |
-| Make a color/detail variant of an enemy | `vary_object` |
-| List all generated characters | `list_characters` |
-| List all generated tilesets | `list_sidescroller_tilesets` |
-| List all generated objects | `list_objects` |
-| Remove an unused asset | `delete_character` / `delete_sidescroller_tileset` / `delete_object` |
+### Aşama 5 — Cilalama & Yayın
+- [ ] Ana menü (yeni oyun / devam / çıkış)
+- [ ] Duraklama menüsü
+- [ ] Partikül efektleri: meşale dumanı, iniş tozu, çarpma kanı, geçersizlik parıltısı
+- [ ] Boss saldırılarında ekran sarsıntısı
+- [ ] Ölüm ekranı
+- [ ] Ses: adım sesi, kılıç sesi, hasar sesi, ortam sesi
+- [ ] Tam oynanış denge geçişi
+- [ ] Final bug geçişi
 
 ---
 
-## Asset Tracking
+## Oyuncu Sistemleri
 
-Keep generated IDs here as assets are created.
-
-### Characters
-| Name | ID | Size | Animations | Status |
-|------|----|------|------------|--------|
-| Historian (protagonist) | `af0973e3-aaeb-45e0-b968-3467cd34e8c5` | 92×92 | Breathing_Idle (4f), Walking (6f), Attack-lunge (7f) | **done** — `assets/sprites/characters/historian/` |
-| Zombie Enemy | `6d88c2ee-1e5d-4236-8502-e4779c1d34b3` | 120×120 | Walking (6f), Attack-upward (5f) | **done** — `assets/sprites/characters/zombie_enemy/` |
-| Cultist Acolyte | — | — | — | pending |
-| Cultist Archer | — | — | — | pending |
-| Possessed Relic | — | — | — | pending |
-| Cult Warden | — | — | — | pending |
-
-### Bosses (Objects)
-| Name | ID | Status |
-|------|----|--------|
-| The Keeper | — | pending |
-| The High Inquisitor | — | pending |
-| The Inverted One | — | pending |
-
-### Tilesets
-| Zone | ID | Status |
-|------|----|--------|
-| Zone 1 — Surface Ruins | `99e4fd6d-c197-491a-8ae4-2ccdb893ad3f` | **done** — `assets/sprites/tilesets/zone1_surface_ruins/` (16 Wang tiles, 16×16px) |
-| Zone 2 — Cave Digging Site | `5625a822-b4f3-45c4-9eda-0d2744ccdef0` | **done** — `assets/sprites/tilesets/zone2_cave_ruins/` (16 Wang tiles, 16×16px) |
-| Zone 3 — The Fracture | — | pending |
-| Zone 4 — Inverted Nave | — | pending |
-| Zone 5 — Cult Sanctum | — | pending |
-| Zone 6 — The Core | — | pending |
-
-### Props / Map Objects
-| Prop | ID | Status |
-|------|----|--------|
-| Wall Torch | — | pending |
-| Altar | — | pending |
-| Bookshelf | — | pending |
-| Lore Scroll | — | pending |
-| Lever | — | pending |
-| Chest | — | pending |
-| Broken Column | — | pending |
-| Cult Symbol | — | pending |
-| Spike Trap | — | pending |
+| Sistem | Açıklama |
+|--------|----------|
+| Hareket | Yürü, koş, zıpla, çömel, duvar kaydır |
+| Dövüş | Yakın dövüş (meşale/hançer), fırlatılabilir bıçaklar, dodge roll |
+| Sağlık | 5 HP, bulunan sargı bezi ve bitkilerle yenilenir |
+| Akıl Sağlığı | Bölge 3–5'te yavaş azalır; tam tükenme ekran distorsiyonu + shade spawn |
+| Dil Sistemi | Antik semboller çözülerek yeni diyaloglar, kapılar, platformlar açılır |
+| Lore Scrolls | Hikâyeyi genişleten koleksiyon; journal menüsünde takip edilir |
+| Gizli Yollar | Gizli duvar geçitleri ekstra lore, HP yükseltme veya kısayol sağlar |
 
 ---
 
-*This file is the living document for the project. Update asset IDs, task checkboxes, and zone statuses as work progresses.*
+## Asset Takibi
+
+### Karakterler
+| İsim | ID | Boyut | Animasyonlar | Durum |
+|------|----|-------|-------------|-------|
+| Arkeolog (protagonist) | `af0973e3-aaeb-45e0-b968-3467cd34e8c5` | 92×92 | Idle (4f), Walk (6f), Attack (7f) | **tamam** |
+| Zombie Düşmanı | `6d88c2ee-1e5d-4236-8502-e4779c1d34b3` | 120×120 | Walk (6f), Attack (5f) | **tamam** |
+| Kültist Tarikat Üyesi | — | — | — | beklemede |
+| Kültist Okçu | — | — | — | beklemede |
+| Ele Geçirilmiş Eser | — | — | — | beklemede |
+| Tarikat Gardiyanı | — | — | — | beklemede |
+
+### Bosslar (Objeler)
+| İsim | ID | Durum |
+|------|----|-------|
+| Sessiz Kâhin | — | beklemede |
+| Kulaksız Kral | — | beklemede |
+| Bin Dilli Anne | — | beklemede |
+| Gözetleyen | — | beklemede |
+
+### Tilesetler
+| Bölge | ID | Durum |
+|-------|----|-------|
+| Bölge 1 — İşçilerin Mezarı | `99e4fd6d-c197-491a-8ae4-2ccdb893ad3f` | **tamam** — `assets/sprites/tilesets/zone1_surface_ruins/` |
+| Bölge 2 — Yankı Şehri | `5625a822-b4f3-45c4-9eda-0d2744ccdef0` | **tamam** — `assets/sprites/tilesets/zone2_cave_ruins/` |
+| Bölge 3 — Kör Rahipler Manastırı | — | beklemede |
+| Bölge 4 — Ters Saray | — | beklemede |
+| Bölge 5 — Son Çan Kuyusu | — | beklemede |
+
+### Prop'lar / Harita Objeleri
+| Prop | ID | Durum |
+|------|----|-------|
+| Duvar Meşalesi | — | beklemede |
+| Sunak | — | beklemede |
+| Kitaplık | — | beklemede |
+| Lore Parşömeni | — | beklemede |
+| Kaldıraç | — | beklemede |
+| Sandık | — | beklemede |
+| Kırık Sütun | — | beklemede |
+| Kült Sembolü | — | beklemede |
+| Sivri Tuzak | — | beklemede |
+
+---
+
+## PixelLab Araç Başvurusu
+
+| İhtiyaç | Araç |
+|---------|------|
+| Yeni karakter sprite'ı | `create_character` |
+| Yürüyüş/koşu/saldırı animasyonu | `animate_character` |
+| Karakter işi tamamlandı mı? | `get_character` |
+| Bölge platform tile'ları | `create_sidescroller_tileset` |
+| Tileset üretim durumu | `get_sidescroller_tileset` |
+| Prop (meşale, sandık, sunak) | `create_map_object` |
+| Boss veya karmaşık düşman sprite'ı | `create_object` |
+| Boss/obje animasyonu | `animate_object` |
+| Düşman renk/detay varyantı | `vary_object` |
+| Tüm karakterleri listele | `list_characters` |
+| Tüm tilesetleri listele | `list_sidescroller_tilesets` |
+| Tüm objeleri listele | `list_objects` |
+
+---
+
+*Bu dosya projenin yaşayan belgesidir. Asset ID'lerini, görev onay kutularını ve bölge durumlarını geliştirme ilerledikçe güncelle.*
