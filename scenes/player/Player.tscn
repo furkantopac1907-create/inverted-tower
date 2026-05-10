@@ -41,14 +41,12 @@ monitorable = false
 shape = SubResource("RectangleShape2D_hurt")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=736454112]
-zoom = Vector2(2.5, 2.5)
 position_smoothing_enabled = true
 position_smoothing_speed = 6.0
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-drag_horizontal_offset = 0.48
-drag_vertical_offset = 0.3
-drag_left_margin = 0.4
-drag_top_margin = 0.0
-drag_right_margin = 0.12
-drag_bottom_margin = 0.0
+drag_horizontal_offset = 1.0
+drag_vertical_offset = -0.02
+drag_left_margin = 0.8
+drag_top_margin = 0.23
+drag_right_margin = 0.21
+drag_bottom_margin = 1.0
+editor_draw_limits = true
