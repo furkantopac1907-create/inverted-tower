@@ -29,6 +29,7 @@ var _attack_timer  := 0.0
 @onready var sprite        : AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_hitbox : Area2D           = $AttackHitbox
 @onready var hurt_box      : Area2D           = $HurtBox
+@onready var interact_box  : Area2D           = $InteractBox
 
 # ── init ───────────────────────────────────────────────────────────────────────
 func _ready() -> void:
@@ -36,6 +37,12 @@ func _ready() -> void:
 	_build_sprite_frames()
 	attack_hitbox.body_entered.connect(_on_attack_body_entered)
 	hurt_box.area_entered.connect(_on_hurt_area_entered)
+	EventBus.player_died.connect(_on_player_died)
+	EventBus.player_respawned.connect(_on_player_respawned)
+	call_deferred("_init_checkpoint")
+
+func _init_checkpoint() -> void:
+	GameState.set_checkpoint(global_position)
 
 func _build_sprite_frames() -> void:
 	var sf := SpriteFrames.new()
@@ -100,6 +107,7 @@ func _physics_process(delta: float) -> void:
 
 	_handle_attack()
 	_handle_dodge()
+	_handle_interact()
 	move_and_slide()
 	_update_anim()
 
@@ -117,11 +125,27 @@ func _handle_jump() -> void:
 		velocity.y = JUMP_VELOCITY
 
 func _handle_attack() -> void:
+	if not GameState.has_weapon:
+		return
 	if Input.is_action_just_pressed("attack") and not _is_attacking and not _is_dodging:
 		_is_attacking = true
 		_attack_timer = ATTACK_DUR
 		attack_hitbox.monitoring = true
 		sprite.play("attack")
+
+func _handle_interact() -> void:
+	if Input.is_action_just_pressed("interact"):
+		if interact_box == null: return
+		var areas = interact_box.get_overlapping_areas()
+		for a in areas:
+			if a.has_method("interact"):
+				a.interact()
+				return
+		var bodies = interact_box.get_overlapping_bodies()
+		for b in bodies:
+			if b.has_method("interact"):
+				b.interact()
+				return
 
 func _handle_dodge() -> void:
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and not _is_dodging and not _is_attacking:
@@ -181,9 +205,17 @@ func take_damage(amount: int) -> void:
 	if not _is_dead:
 		_is_hurt = false
 
-func _die() -> void:
+func _on_player_died() -> void:
 	_is_dead = true
 	set_physics_process(false)
+
+func _on_player_respawned(pos: Vector2) -> void:
+	_is_dead = false
+	_is_hurt = false
+	_iframe_timer = IFRAMES_DUR
+	global_position = pos
+	set_physics_process(true)
+	sprite.modulate = Color.WHITE
 
 # ── signal callbacks ───────────────────────────────────────────────────────────
 func _on_attack_body_entered(body: Node2D) -> void:

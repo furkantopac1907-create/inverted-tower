@@ -189,9 +189,9 @@ Her bölgede:
 - [x] `GameState.gd` autoload: sağlık, akıl sağlığı, scroll listesi, checkpoint
 - [x] `EventBus.gd` autoload: hasar, ölüm, lore, akıl sağlığı sinyalleri
 - [x] Input map: move_left/right (A·D·←·→), jump (Space·W), attack (J·Z), dodge (K·X), interact (E·F)
-- [ ] Screen-edge deadzone kamerası
-- [ ] Placeholder TileMap (gri tile, collision testi için)
-- [ ] Ölüm + son checkpoint'te yeniden doğma
+- [x] Camera with screen-edge deadzone
+- [x] Placeholder TileMap with one gray tile for collision testing
+- [x] Death + respawn at last checkpoint'te yeniden doğma
 
 ---
 

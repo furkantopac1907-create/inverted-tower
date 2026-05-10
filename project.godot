@@ -21,6 +21,13 @@ EventBus="*res://scripts/systems/EventBus.gd"
 GameState="*res://scripts/systems/GameState.gd"
 McpInteractionServer="*res://scripts/mcp_interaction_server.gd"
 
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/size/resizable=false
+window/stretch/mode="canvas_items"
+
 [input]
 
 move_left={
@@ -64,14 +71,9 @@ interact={
 
 3d/physics_engine="Jolt Physics"
 
-[display]
-
-window/size/viewport_width=960
-window/size/viewport_height=540
-window/size/resizable=false
-
 [rendering]
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.0901961, 0.0705882, 0.121569, 1)

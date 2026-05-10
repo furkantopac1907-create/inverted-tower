@@ -4,21 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/ZombieEnemy.tscn" id="2_zombie"]
 [ext_resource type="Script" path="res://scripts/zones/Zone1Background.gd" id="3_bg"]
 [ext_resource type="Script" path="res://scripts/zones/Zone2Background.gd" id="4_bg2"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
-size = Vector2(3000.0, 40.0)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_platform_a"]
-size = Vector2(320.0, 24.0)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_platform_b"]
-size = Vector2(200.0, 24.0)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_l"]
-size = Vector2(24.0, 600.0)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_r"]
-size = Vector2(24.0, 600.0)
+[ext_resource type="TileSet" path="res://assets/sprites/tilesets/zone1_surface_ruins/zone1_tileset.tres" id="5_tileset"]
 
 [node name="TestRoom" type="Node2D"]
 
@@ -30,63 +16,9 @@ offset_bottom = 1080.0
 color = Color(0.09, 0.07, 0.12, 1)
 z_index = -10
 
-[node name="Floor" type="StaticBody2D" parent="."]
-position = Vector2(640.0, 560.0)
-collision_layer = 2
-collision_mask = 0
-
-[node name="FloorShape" type="CollisionShape2D" parent="Floor"]
-shape = SubResource("RectangleShape2D_floor")
-
-[node name="FloorVis" type="ColorRect" parent="Floor"]
-visible = false
-position = Vector2(-1500.0, -20.0)
-size = Vector2(3000.0, 40.0)
-color = Color(0.25, 0.2, 0.15, 1)
-
-[node name="PlatformA" type="StaticBody2D" parent="."]
-position = Vector2(350.0, 420.0)
-collision_layer = 2
-collision_mask = 0
-
-[node name="PlatformAShape" type="CollisionShape2D" parent="PlatformA"]
-shape = SubResource("RectangleShape2D_platform_a")
-
-[node name="PlatformAVis" type="ColorRect" parent="PlatformA"]
-visible = false
-position = Vector2(-160.0, -12.0)
-size = Vector2(320.0, 24.0)
-color = Color(0.3, 0.22, 0.14, 1)
-
-[node name="PlatformB" type="StaticBody2D" parent="."]
-position = Vector2(750.0, 320.0)
-collision_layer = 2
-collision_mask = 0
-
-[node name="PlatformBShape" type="CollisionShape2D" parent="PlatformB"]
-shape = SubResource("RectangleShape2D_platform_b")
-
-[node name="PlatformBVis" type="ColorRect" parent="PlatformB"]
-visible = false
-position = Vector2(-100.0, -12.0)
-size = Vector2(200.0, 24.0)
-color = Color(0.3, 0.22, 0.14, 1)
-
-[node name="WallLeft" type="StaticBody2D" parent="."]
-position = Vector2(-820.0, 260.0)
-collision_layer = 2
-collision_mask = 0
-
-[node name="WallLeftShape" type="CollisionShape2D" parent="WallLeft"]
-shape = SubResource("RectangleShape2D_wall_l")
-
-[node name="WallRight" type="StaticBody2D" parent="."]
-position = Vector2(2100.0, 260.0)
-collision_layer = 2
-collision_mask = 0
-
-[node name="WallRightShape" type="CollisionShape2D" parent="WallRight"]
-shape = SubResource("RectangleShape2D_wall_r")
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("5_tileset")
+format = 2
 
 [node name="Zone1Background" type="Node2D" parent="."]
 script = ExtResource("3_bg")

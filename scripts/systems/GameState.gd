@@ -8,8 +8,14 @@ var current_zone := 1
 var checkpoint_position := Vector2.ZERO
 var lore_scrolls_collected: Array[String] = []
 
+# Demo Intro variables
+var has_weapon := false
+var has_manuscript := false
+var has_zone2_key := false
+
 func _ready() -> void:
 	EventBus.player_damaged.connect(_on_player_damaged)
+	EventBus.player_died.connect(_on_player_died)
 
 func damage_player(amount: int) -> void:
 	health = max(0, health - amount)
@@ -38,3 +44,8 @@ func set_checkpoint(pos: Vector2) -> void:
 
 func _on_player_damaged(_amount: int) -> void:
 	pass
+
+func _on_player_died() -> void:
+	await get_tree().create_timer(2.0).timeout
+	health = max_health
+	EventBus.player_respawned.emit(checkpoint_position)
