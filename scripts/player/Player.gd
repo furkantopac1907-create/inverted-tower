@@ -50,8 +50,8 @@ func _build_sprite_frames() -> void:
 	_add_sheet(sf, "idle",   idle,  3, 3,  80, 80,  8.0, true,  0, 9)
 	# walk   → malewalksword 13 kare
 	_add_sheet(sf, "walk",   walk,  4, 4,  81, 81, 10.0, true,  0, 13)
-	# jump   → malejump 14 kare
-	_add_sheet(sf, "jump",   jump,  4, 4,  85, 85, 12.0, false, 0, 14)
+	# jump   → malejump 15 kare (son kare boş)
+	_add_sheet(sf, "jump",   jump,  4, 4,  85, 85, 12.0, false, 0, 15)
 	# attack → malemainsword 13 kare (Z tuşu)
 	_add_sheet(sf, "attack", sword, 4, 4,  81, 81, 14.0, false, 0, 13)
 	# dodge  → hızlandırılmış walk 13 kare

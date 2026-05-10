@@ -64,6 +64,12 @@ interact={
 
 3d/physics_engine="Jolt Physics"
 
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/size/resizable=false
+
 [rendering]
 
 rendering_device/driver.windows="d3d12"

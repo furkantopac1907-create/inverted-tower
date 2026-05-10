@@ -50,10 +50,10 @@ func _build_sprite_frames() -> void:
 	var walk   := load(SHEET_WALK)   as Texture2D
 	var attack := load(SHEET_ATTACK) as Texture2D
 
-	# idle → enemyidle.png  192×192, 3×3 grid, 64×64 kare
-	_add_sheet(sf, "idle",   idle,   3, 3,  64, 64,  7.0, true,  0, 9)
-	# walk → tüm 12 kare
-	_add_sheet(sf, "walk",   walk,   4, 3,  80, 80,  9.0, true,  0, 12)
+	# idle → enemyidle.png  192×192, 3×3 grid, 64×64 kare (son 2 boş)
+	_add_sheet(sf, "idle",   idle,   3, 3,  64, 64,  7.0, true,  0, 7)
+	# walk → 12 kareden 11'i dolu (son kare boş)
+	_add_sheet(sf, "walk",   walk,   4, 3,  80, 80,  9.0, true,  0, 11)
 	# attack → tüm 9 kare
 	_add_sheet(sf, "attack", attack, 3, 3,  64, 64, 10.0, false, 0, 9)
 
