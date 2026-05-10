@@ -9,6 +9,7 @@ var checkpoint_position := Vector2.ZERO
 var lore_scrolls_collected: Array[String] = []
 
 # Demo Intro variables
+var intro_played := false
 var has_weapon := false
 var has_manuscript := false
 var has_zone2_key := false

@@ -24,6 +24,7 @@ var _is_dead       := false
 var _iframe_timer  := 0.0
 var _dodge_timer   := 0.0
 var _attack_timer  := 0.0
+var _intro_state   := 0
 
 # ── nodes ──────────────────────────────────────────────────────────────────────
 @onready var sprite        : AnimatedSprite2D = $AnimatedSprite2D
@@ -39,7 +40,15 @@ func _ready() -> void:
 	hurt_box.area_entered.connect(_on_hurt_area_entered)
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.player_respawned.connect(_on_player_respawned)
-	call_deferred("_init_checkpoint")
+	if not GameState.intro_played:
+		call_deferred("_start_intro")
+	else:
+		call_deferred("_init_checkpoint")
+
+func _start_intro() -> void:
+	_intro_state = 1
+	global_position.y -= 400
+	velocity = Vector2.ZERO
 
 func _init_checkpoint() -> void:
 	GameState.set_checkpoint(global_position)
@@ -93,6 +102,25 @@ func _physics_process(delta: float) -> void:
 
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
+
+	if _intro_state > 0:
+		move_and_slide()
+		if _intro_state == 1 and is_on_floor():
+			_intro_state = 2
+			GameState.intro_played = true
+			_play("idle")
+			var cam = get_node_or_null("PlayerCamera")
+			if cam and cam.has_method("shake"):
+				cam.shake(0.6, 8.0)
+			_iframe_timer = 1.5
+			sprite.modulate = Color(0.6, 0.6, 0.6)
+			await get_tree().create_timer(1.5).timeout
+			sprite.modulate = Color.WHITE
+			_intro_state = 0
+			call_deferred("_init_checkpoint")
+		elif _intro_state == 1:
+			_play("jump")
+		return
 
 	if _is_dodging:
 		velocity.x = DODGE_SPEED * (1.0 if _facing_right else -1.0)
