@@ -28,7 +28,6 @@ window/size/viewport_height=540
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 
-
 [input]
 
 move_left={

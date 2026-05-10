@@ -3,7 +3,9 @@
 [ext_resource type="PackedScene" uid="uid://c2p4mxvt8jgq1" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cpdkhuumx6drj" path="res://scripts/zones/Zone1Setup.gd" id="2_setup"]
 [ext_resource type="Texture2D" uid="uid://bmvb0enem0gjj" path="res://assets/sprites/tilesets/gothic_castle/gothic-castle-tileset.png" id="3_u5e7l"]
-[ext_resource type="PackedScene" uid="uid://0ombie001" path="res://scenes/enemies/ZombieEnemy.tscn" id="4_zombie"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ZombieEnemy.tscn" id="4_zombie"]
+[ext_resource type="PackedScene" path="res://scenes/objects/NPC.tscn" id="5_npc"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogueUI.tscn" id="6_ui"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_b4bpt"]
 load_path = "res://.godot/imported/old-dark-castle-interior-background.png-672af2ce77f8cbd646e5f2898b2ea72b.ctex"
@@ -207,6 +209,11 @@ shape = SubResource("wall_r")
 
 [node name="Player" parent="." unique_id=811125604 instance=ExtResource("1_player")]
 position = Vector2(-76, 481)
+
+[node name="NPC" parent="." instance=ExtResource("5_npc")]
+position = Vector2(40, 481)
+
+[node name="DialogueUI" parent="." instance=ExtResource("6_ui")]
 
 [node name="Enemy1" parent="." unique_id=1602798682 instance=ExtResource("4_zombie")]
 position = Vector2(590, 414)

@@ -140,6 +140,10 @@ func _physics_process(delta: float) -> void:
 	_update_anim()
 
 # ── input handlers ─────────────────────────────────────────────────────────────
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_H: 
+			GameState.use_health_potion()
 func _handle_move(delta: float) -> void:
 	var dir : float = Input.get_axis("move_left", "move_right")
 	if dir != 0.0:
@@ -150,7 +154,8 @@ func _handle_move(delta: float) -> void:
 
 func _handle_jump() -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
+		if GameState.consume_stamina(15.0):
+			velocity.y = JUMP_VELOCITY
 
 func _handle_attack() -> void:
 	if not GameState.has_weapon:
@@ -177,10 +182,11 @@ func _handle_interact() -> void:
 
 func _handle_dodge() -> void:
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and not _is_dodging and not _is_attacking:
-		_is_dodging  = true
-		_dodge_timer = DODGE_DURATION
-		_iframe_timer = IFRAMES_DUR
-		_play("dodge")
+		if GameState.consume_stamina(30.0):
+			_is_dodging  = true
+			_dodge_timer = DODGE_DURATION
+			_iframe_timer = IFRAMES_DUR
+			_play("dodge")
 
 # ── timers ─────────────────────────────────────────────────────────────────────
 func _tick_timers(delta: float) -> void:

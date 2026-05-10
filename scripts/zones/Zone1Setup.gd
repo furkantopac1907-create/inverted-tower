@@ -23,8 +23,8 @@ func _ensure_tileset() -> void:
 			push_error("[Zone1Setup] Tileset kaydedilemedi, hata: %d" % err)
 			return
 
-	var terrain      := $Terrain      as TileMapLayer
-	var bg_tiles     := $BackgroundTiles as TileMapLayer
+	var terrain      = get_node_or_null("Terrain") as TileMapLayer
+	var bg_tiles     = get_node_or_null("BackgroundTiles") as TileMapLayer
 	if terrain:
 		terrain.tile_set = ts
 	if bg_tiles:
